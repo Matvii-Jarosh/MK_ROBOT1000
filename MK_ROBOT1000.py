@@ -121,8 +121,8 @@ BAD_WORDS = {
     'говнюк': 2,
     'гавно': 2,
     'муд': 2,
-    'піз': 2,
-    'сра': 2,
+    'пізд': 2,
+    'срат': 2,
     'жоп': 2,
     'залупа': 2,
     'залупка': 2,
@@ -165,13 +165,13 @@ BAD_WORDS = {
     'motherfucker': 3,
     'nigger': 3,
     'nigga': 3,
-    'fag': 3,
 }
 
 EXCLUSION = [
     "тупик",
     "тупік",
     "тупок",
+    "дуршл",
     "дурниц",
     "дурост",
     "лохн",
@@ -255,12 +255,35 @@ def contains_bad_word(word: str) -> tuple[bool, str | None, int | None]:
 
 
 def check_sentence_for_bad_words(sentence: str) -> list[tuple[str, str, int]]:
-    words = re.findall(r"[a-zA-Zа-яА-ЯіїєґІЇЄҐ0-9@\$!\*\?#&\^%]+", sentence.lower())
+    """
+    Перевіряє речення на погані слова
+    :param sentence: речення яке перевіряємо
+    :return: список усіх поганих слів де на початку саме слова, аналог в словарі та ступінь поганості слова
+    """
     bad_found = []
+    words = re.findall(r"[a-zA-Zа-яА-ЯіїєґІЇЄҐ0-9@*$#&\^]+|[!?.,:]", sentence)
+    seen = set()
 
     for word in words:
+        if word in seen:
+            continue
+        seen.add(word)
+
         is_bad, found_word, severity = contains_bad_word(word)
         if is_bad:
             bad_found.append((word, found_word, severity))
 
     return bad_found
+
+
+def replace_bad_words(sentence: str) -> str:
+    """
+    Замінює усі погані слова в реченні на зірочки
+    :param sentence: рядок з поганими словами
+    :return: рядок з заміненими поганими словами
+    """
+    bad_words = check_sentence_for_bad_words(sentence)
+    for bad_word in bad_words:
+        sentence = sentence.replace(bad_word[0], "*" * len(bad_word[0]))
+
+    return sentence
