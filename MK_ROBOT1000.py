@@ -190,7 +190,8 @@ EXCLUSION = [
 
 bad_words_regex = re.compile("|".join(sorted(map(re.escape, BAD_WORDS.keys()), key=len, reverse=True)))
 exclusion_regex = re.compile("|".join(map(re.escape, EXCLUSION)))
-
+min_bad_len = min(len(bw) for bw in BAD_WORDS) if BAD_WORDS else 0
+min_excl_len = min(len(ew) for ew in EXCLUSION) if EXCLUSION else 0
 
 def contains_bad_word(word: str) -> tuple[bool, str | None, int | None]:
     """
@@ -203,9 +204,6 @@ def contains_bad_word(word: str) -> tuple[bool, str | None, int | None]:
 
     if word_lower in BAD_WORDS:
         return True, word_lower, BAD_WORDS[word_lower]
-
-    min_bad_len = min(len(bw) for bw in BAD_WORDS) if BAD_WORDS else 0
-    min_excl_len = min(len(ew) for ew in EXCLUSION) if EXCLUSION else 0
 
     if word_len < min(min_bad_len, min_excl_len):
         return False, None, None
